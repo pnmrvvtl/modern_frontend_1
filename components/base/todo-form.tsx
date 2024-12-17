@@ -1,39 +1,48 @@
 'use client';
 
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Todo } from "@/types/todo";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Priority, Todo } from '@/types/todo';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
+import createTodo from '@/actions/create-todo';
+import { toast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface TodoFormProps {
   todo?: Todo;
-  onSubmit?: (formData: FormData) => void;
-  onDelete?: () => void;
 }
 
-export function TodoForm({ todo, onSubmit, onDelete }: TodoFormProps) {
+export function TodoForm({ todo }: TodoFormProps) {
   const isEditMode = !!todo;
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    onSubmit?.(formData);
+
+    try {
+      const newTodoId = await createTodo(formData);
+      router.push(`/todos/${newTodoId}/edit`)
+
+      toast({
+        title:       'Success',
+        description: isEditMode ? 'Todo updated successfully!' : 'Todo created successfully!',
+        variant:     'default',
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
-    <div className="border p-4 rounded-md bg-white shadow-sm max-w-md w-full">
+    <div className="border p-4 rounded-md bg-white shadow-sm w-[70vw]">
       <div className="flex justify-between items-center mb-4">
         {isEditMode && (
-          <Button variant="destructive" onClick={onDelete}>
+          <Button variant="destructive" onClick={() => {}}>
             Delete
           </Button>
         )}
@@ -45,6 +54,8 @@ export function TodoForm({ todo, onSubmit, onDelete }: TodoFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <input type="hidden" name="id" value={todo?.id} />
+
         <div>
           <Label htmlFor="title">Title</Label>
           <Input
@@ -66,6 +77,7 @@ export function TodoForm({ todo, onSubmit, onDelete }: TodoFormProps) {
             defaultValue={todo?.description ?? ""}
             placeholder="Description"
             className="mt-1"
+            required
           />
         </div>
 
@@ -77,24 +89,27 @@ export function TodoForm({ todo, onSubmit, onDelete }: TodoFormProps) {
             type="date"
             defaultValue={todo?.dueDate ? new Date(todo.dueDate).toISOString().slice(0, 10) : ""}
             className="mt-1"
+            required
           />
         </div>
 
         <div>
-          <Label htmlFor="priority">Priority</Label>
+          <Label htmlFor="priority" className="block text-lg font-medium text-gray-700">
+            Priority
+          </Label>
           <Select
-            onValueChange={(value) => {
-              console.log(value);
-            }}
-            defaultValue={todo?.priority ?? "P3"}
+            defaultValue={todo?.priority.toString() ?? Priority.P1.toString()}
+            name="priority"
+            required
           >
-            <SelectTrigger id="priority" name="priority" className="mt-1 w-full">
-              <SelectValue placeholder="Select a priority" />
+            <SelectTrigger
+              className="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="P1">P1</SelectItem>
-              <SelectItem value="P2">P2</SelectItem>
-              <SelectItem value="P3">P3</SelectItem>
+              {Object.values(Priority).map(el => typeof el === 'string' && (
+                <SelectItem value={el.toString()} key={el.toString()}>{el.toString()}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -110,7 +125,7 @@ export function TodoForm({ todo, onSubmit, onDelete }: TodoFormProps) {
 
         <div>
           <Button type="submit" className="w-full">
-            {isEditMode ? "Update" : "Create"}
+            {isEditMode ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>
