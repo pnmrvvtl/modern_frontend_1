@@ -1,5 +1,3 @@
-// /components/FilterForm.tsx
-
 'use client';
 
 import React from 'react';
@@ -20,7 +18,6 @@ export function TodoFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Extract existing query parameters to prepopulate the form
   const currentFilters = {
     title:       searchParams.get('title') || '',
     description: searchParams.get('description') || '',
@@ -50,6 +47,10 @@ export function TodoFilters() {
     const queryString = new URLSearchParams(query).toString();
     router.push(`/todos?${queryString}`);
   };
+
+  const handleReset = () => {
+    router.push('/todos');
+  }
 
   return (
     <form onSubmit={handleSubmit} className="border p-4 rounded-md bg-white shadow-sm w-full mb-8">
@@ -127,8 +128,9 @@ export function TodoFilters() {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex justify-end gap-2.5">
         <Button type="submit">Filter</Button>
+        <Button type="button" onClick={handleReset}>Reset</Button>
       </div>
     </form>
   );

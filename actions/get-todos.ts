@@ -3,7 +3,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { Priority, Todo } from '@/types/todo';
-import { TodoDto } from '@/types/todo-dto';
 
 interface GetTodosParams {
   title?: string;
@@ -46,11 +45,11 @@ export async function getTodos(params: GetTodosParams): Promise<Todo[]> {
     return [];
   }
 
-  const todos: Todo[] = data.map((item: TodoDto) => ({
+  const todos: Todo[] = data.map((item: Todo) => ({
     id: item.id,
     title: item.title,
     description: item.description,
-    dueDate: new Date(item.due_date).toISOString().split('T')[0],
+    due_date: new Date(item.due_date).toISOString().split('T')[0],
     priority: item.priority,
     completed: item.completed,
   }));

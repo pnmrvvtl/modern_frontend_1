@@ -1,5 +1,6 @@
-import { Button } from '@/components/ui/button';
 import { SearchParams } from '@/types/searchParams';
+import { TodoForm } from '@/components/base/todo-form';
+import getTodo from '@/actions/get-todo';
 
 interface Props {
   params: Promise<{id: string}>;
@@ -9,10 +10,11 @@ interface Props {
 export default async function EditTodo(props: Props) {
   const { id } = await props.params;
 
+  const todo = await getTodo(parseInt(id));
+
   return (
     <div>
-      <h1>Edit todo {id}</h1>
-      <Button>Click me</Button>
+      <TodoForm todo={todo} />
     </div>
   );
 }

@@ -7,12 +7,39 @@ import { Trash, Edit } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { Todo } from '@/types/todo';
+import { useRouter } from 'next/navigation';
+import deleteTodo from '@/actions/delete-todo';
+import { toast } from '@/hooks/use-toast';
 
 interface TodoListProps {
   todos: Todo[];
 }
 
 export function TodoList({ todos }: TodoListProps) {
+  const router = useRouter();
+
+  const handleDelete = async (id: number) => {
+    const formData = new FormData();
+    formData.append('id', id.toString());
+
+    try {
+      await deleteTodo(formData);
+      toast({
+        title:       'Deleted',
+        description: 'The todo was deleted successfully!',
+        variant:     'default',
+      });
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title:       'Error',
+        description: 'Failed to delete the todo. Please try again.',
+        variant:     'destructive',
+      });
+    }
+  }
+
   return (
     <div className="space-y-4 mb-4">
       {todos.map((todo) => (
@@ -24,7 +51,7 @@ export function TodoList({ todos }: TodoListProps) {
                 <div>
                   <div className="font-medium text-lg">{todo.title}</div>
                   <div className="text-sm text-gray-500">
-                    Priority: {todo.priority} | Due: {new Date(todo.dueDate).toLocaleDateString()}
+                    Priority: {todo.priority} | Due: {new Date(todo.due_date).toLocaleDateString()}
                   </div>
                 </div>
               </div>
@@ -32,7 +59,7 @@ export function TodoList({ todos }: TodoListProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => {}}
+                  onClick={() => router.push(`/todos/${todo.id}/edit`)}
                   aria-label="Edit Todo"
                 >
                   <Edit className="w-5 h-5" />
@@ -40,8 +67,8 @@ export function TodoList({ todos }: TodoListProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => {}}
                   aria-label="Delete Todo"
+                  onClick={() => handleDelete(parseInt(todo.id.toString()))}
                 >
                   <Trash className="w-5 h-5 text-red-500" />
                 </Button>

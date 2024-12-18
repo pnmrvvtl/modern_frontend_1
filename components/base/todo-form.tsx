@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '
 import createTodo from '@/actions/create-todo';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import updateTodo from '@/actions/update-todo';
 
 interface TodoFormProps {
   todo?: Todo;
@@ -23,10 +24,15 @@ export function TodoForm({ todo }: TodoFormProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    let newTodoId: number;
 
     try {
-      const newTodoId = await createTodo(formData);
-      router.push(`/todos/${newTodoId}/edit`)
+      if (isEditMode) {
+        await updateTodo(formData);
+      } else {
+        newTodoId = await createTodo(formData);
+        router.push(`/todos/${newTodoId}/edit`)
+      }
 
       toast({
         title:       'Success',
@@ -39,20 +45,7 @@ export function TodoForm({ todo }: TodoFormProps) {
   };
 
   return (
-    <div className="border p-4 rounded-md bg-white shadow-sm w-[70vw]">
-      <div className="flex justify-between items-center mb-4">
-        {isEditMode && (
-          <Button variant="destructive" onClick={() => {}}>
-            Delete
-          </Button>
-        )}
-        {isEditMode && todo && (
-          <div className="text-sm text-gray-500 flex-1 ml-4">
-            Priority: {todo.priority} | Due: {todo.dueDate} | Task: {todo.title}
-          </div>
-        )}
-      </div>
-
+    <div className="border p-4 rounded-md bg-white shadow-sm w-[40vw] m-5">
       <form onSubmit={handleSubmit} className="space-y-6">
         <input type="hidden" name="id" value={todo?.id} />
 
@@ -87,7 +80,7 @@ export function TodoForm({ todo }: TodoFormProps) {
             id="dueDate"
             name="dueDate"
             type="date"
-            defaultValue={todo?.dueDate ? new Date(todo.dueDate).toISOString().slice(0, 10) : ""}
+            defaultValue={todo?.due_date ? new Date(todo.due_date).toISOString().slice(0, 10) : ""}
             className="mt-1"
             required
           />
@@ -123,8 +116,8 @@ export function TodoForm({ todo }: TodoFormProps) {
           <Label htmlFor="completed">Is Completed</Label>
         </div>
 
-        <div>
-          <Button type="submit" className="w-full">
+        <div className="flex items-center justify-center">
+          <Button type="submit" className="w-[200px]">
             {isEditMode ? 'Update' : 'Create'}
           </Button>
         </div>
