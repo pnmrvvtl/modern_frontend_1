@@ -75,10 +75,10 @@ export function TodoForm({ todo }: TodoFormProps) {
         </div>
 
         <div>
-          <Label htmlFor="dueDate">Due Date</Label>
+          <Label htmlFor="due_date">Due Date</Label>
           <Input
-            id="dueDate"
-            name="dueDate"
+            id="due_date"
+            name="due_date"
             type="date"
             defaultValue={todo?.due_date ? new Date(todo.due_date).toISOString().slice(0, 10) : ""}
             className="mt-1"

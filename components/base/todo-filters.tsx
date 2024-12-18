@@ -21,7 +21,7 @@ export function TodoFilters() {
   const currentFilters = {
     title:       searchParams.get('title') || '',
     description: searchParams.get('description') || '',
-    dueDate:     searchParams.get('dueDate') || '',
+    due_date:    searchParams.get('due_date') || '',
     priority:    searchParams.get('priority') || 'Any',
     completed:   searchParams.get('completed') || 'Any',
   };
@@ -34,13 +34,13 @@ export function TodoFilters() {
 
     const title = formData.get('title')?.toString().trim();
     const description = formData.get('description')?.toString().trim();
-    const dueDate = formData.get('dueDate')?.toString();
+    const due_date = formData.get('due_date')?.toString();
     const priority = formData.get('priority')?.toString();
     const completed = formData.get('completed')?.toString();
 
     if (title) query.title = title;
     if (description) query.description = description;
-    if (dueDate) query.dueDate = dueDate;
+    if (due_date) query.due_date = due_date;
     if (priority && priority !== 'Any') query.priority = priority;
     if (completed && completed !== 'Any') query.completed = completed;
 
@@ -56,7 +56,6 @@ export function TodoFilters() {
     <form onSubmit={handleSubmit} className="border p-4 rounded-md bg-white shadow-sm w-full mb-8">
       <h2 className="text-xl font-semibold mb-4">Filter Todos</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Title */}
         <div>
           <Label htmlFor="title">Title</Label>
           <Input
@@ -69,7 +68,6 @@ export function TodoFilters() {
           />
         </div>
 
-        {/* Description */}
         <div>
           <Label htmlFor="description">Description</Label>
           <Input
@@ -82,19 +80,17 @@ export function TodoFilters() {
           />
         </div>
 
-        {/* Due Date */}
         <div>
-          <Label htmlFor="dueDate">Due Date</Label>
+          <Label htmlFor="due_date">Due Date</Label>
           <Input
-            id="dueDate"
-            name="dueDate"
+            id="due_date"
+            name="due_date"
             type="date"
-            defaultValue={currentFilters.dueDate}
+            defaultValue={currentFilters.due_date}
             className="mt-1"
           />
         </div>
 
-        {/* Priority */}
         <div>
           <Label htmlFor="priority">Priority</Label>
           <Select name="priority" defaultValue={currentFilters.priority}>
@@ -112,7 +108,6 @@ export function TodoFilters() {
           </Select>
         </div>
 
-        {/* Completed */}
         <div>
           <Label htmlFor="completed">Completed</Label>
           <Select name="completed" defaultValue={currentFilters.completed}>

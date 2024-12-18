@@ -13,7 +13,7 @@ export default async function TodosPage(props: Props) {
   const todos = await getTodos(searchParams);
 
   return (
-    <div className="m-5">
+    <div className="m-5 w-[40vw]">
       <TodoFilters />
       <TodoList todos={todos} />
     </div>

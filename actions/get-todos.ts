@@ -7,7 +7,7 @@ import { Priority, Todo } from '@/types/todo';
 interface GetTodosParams {
   title?: string;
   description?: string;
-  dueDate?: string;
+  due_date?: string;
   priority?: Priority;
   completed?: boolean;
 }
@@ -26,8 +26,8 @@ export async function getTodos(params: GetTodosParams): Promise<Todo[]> {
     query = query.ilike('description', `%${params.description}%`);
   }
 
-  if (params.dueDate) {
-    query = query.eq('due_date', params.dueDate);
+  if (params.due_date) {
+    query = query.eq('due_date', params.due_date);
   }
 
   if (params.priority) {

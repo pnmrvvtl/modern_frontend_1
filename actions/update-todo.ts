@@ -18,8 +18,8 @@ export default async function updateTodo(formData: FormData) {
   const todoData = {
     title: formData.get("title")?.toString() || "",
     description: formData.get("description")?.toString() || "",
-    due_date: formData.get("dueDate")
-      ? new Date(formData.get("dueDate")?.toString()?? '')
+    due_date: formData.get("due_date")
+      ? new Date(formData.get("due_date")?.toString()?? '')
       : null,
     priority: formData.get("priority")?.toString() || Priority.P4,
     completed: formData.get("completed") === "on",
