@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="flex justify-end items-center text-primary">
         Modern frontend first homework by&nbsp;
         <a
-          href="https://github.com/pnrvvtl"
+          href="https://github.com/pnmrvvtl"
           target="_blank"
           rel="noopener noreferrer"
           className="underline text-primary hover:text-gray-600 transition-colors duration-200"

@@ -15,6 +15,15 @@ export default async function updateTodo(formData: FormData) {
     throw new Error("Todo ID is required for updating.");
   }
 
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("User must be authenticated to update todos.");
+  }
+
   const todoData = {
     title: formData.get("title")?.toString() || "",
     description: formData.get("description")?.toString() || "",
@@ -29,7 +38,8 @@ export default async function updateTodo(formData: FormData) {
     const { error } = await supabase
       .from("todos")
       .update(todoData)
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       throw new Error(`Failed to update todo: ${error.message}`);

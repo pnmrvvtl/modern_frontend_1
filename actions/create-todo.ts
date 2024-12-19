@@ -9,6 +9,15 @@ export default async function createTodo(formData: FormData) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("User must be authenticated to create a todo.");
+  }
+
   const todoData = {
     title: formData.get("title")?.toString() || "",
     description: formData.get("description")?.toString() || "",
@@ -17,6 +26,7 @@ export default async function createTodo(formData: FormData) {
       : null,
     priority: formData.get("priority")?.toString() || Priority.P4,
     completed: Boolean(formData.get("completed")),
+    user_id: user.id,
   };
 
   try {

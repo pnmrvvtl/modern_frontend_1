@@ -16,7 +16,16 @@ export async function getTodos(params: GetTodosParams): Promise<Todo[]> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  let query = supabase.from('todos').select('*');
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("User must be authenticated to fetch todos.");
+  }
+
+  let query = supabase.from("todos").select("*").eq("user_id", user.id);
 
   if (params.title) {
     query = query.ilike('title', `%${params.title}%`);
