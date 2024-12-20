@@ -24,6 +24,7 @@ export function TodoFilters() {
     due_date:    searchParams.get('due_date') || '',
     priority:    searchParams.get('priority') || 'Any',
     completed:   searchParams.get('completed') || 'Any',
+    sort:        searchParams.get('sort') || '',
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,12 +38,14 @@ export function TodoFilters() {
     const due_date = formData.get('due_date')?.toString();
     const priority = formData.get('priority')?.toString();
     const completed = formData.get('completed')?.toString();
+    const sort = formData.get('sort')?.toString();
 
     if (title) query.title = title;
     if (description) query.description = description;
     if (due_date) query.due_date = due_date;
     if (priority && priority !== 'Any') query.priority = priority;
     if (completed && completed !== 'Any') query.completed = completed;
+    if (sort) query.sort = sort;
 
     const queryString = new URLSearchParams(query).toString();
     router.push(`/todos?${queryString}`);
@@ -118,6 +121,21 @@ export function TodoFilters() {
               <SelectItem value="Any">Any</SelectItem>
               <SelectItem value="true">Completed</SelectItem>
               <SelectItem value="false">Not Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="sort">Sort By</Label>
+          <Select name="sort" defaultValue={currentFilters.sort || "due_date:asc"}>
+            <SelectTrigger id="sort" className="mt-1 w-full">
+              <SelectValue placeholder="Select Sort Option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="due_date:asc">Due Date (Ascending)</SelectItem>
+              <SelectItem value="due_date:desc">Due Date (Descending)</SelectItem>
+              <SelectItem value="priority:asc">Priority (Low to High)</SelectItem>
+              <SelectItem value="priority:desc">Priority (High to Low)</SelectItem>
             </SelectContent>
           </Select>
         </div>

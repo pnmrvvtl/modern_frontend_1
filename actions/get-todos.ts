@@ -12,7 +12,7 @@ interface GetTodosParams {
   completed?: boolean;
 }
 
-export async function getTodos(params: GetTodosParams): Promise<Todo[]> {
+export async function getTodos(params: GetTodosParams & { sort?: string }): Promise<Todo[]> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -27,30 +27,21 @@ export async function getTodos(params: GetTodosParams): Promise<Todo[]> {
 
   let query = supabase.from("todos").select("*").eq("user_id", user.id);
 
-  if (params.title) {
-    query = query.ilike('title', `%${params.title}%`);
+  if (params.title) query = query.ilike("title", `%${params.title}%`);
+  if (params.description) query = query.ilike("description", `%${params.description}%`);
+  if (params.due_date) query = query.eq("due_date", params.due_date);
+  if (params.priority) query = query.eq("priority", params.priority);
+  if (params.completed !== undefined) query = query.eq("completed", params.completed);
+
+  if (params.sort) {
+    const [sortField, sortOrder] = params.sort.split(":");
+    query = query.order(sortField, { ascending: sortOrder === "asc" });
   }
 
-  if (params.description) {
-    query = query.ilike('description', `%${params.description}%`);
-  }
-
-  if (params.due_date) {
-    query = query.eq('due_date', params.due_date);
-  }
-
-  if (params.priority) {
-    query = query.eq('priority', params.priority);
-  }
-
-  if (params.completed !== undefined) {
-    query = query.eq('completed', params.completed);
-  }
-
-  const { data, error } = await query.order('due_date', { ascending: true });
+  const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching todos:', error);
+    console.error("Error fetching todos:", error);
     return [];
   }
 
@@ -58,7 +49,7 @@ export async function getTodos(params: GetTodosParams): Promise<Todo[]> {
     id: item.id,
     title: item.title,
     description: item.description,
-    due_date: new Date(item.due_date).toISOString().split('T')[0],
+    due_date: new Date(item.due_date).toISOString().split("T")[0],
     priority: item.priority,
     completed: item.completed,
   }));
