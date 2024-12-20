@@ -11,7 +11,7 @@ export default async function Header() {
   const user = await getUser();
 
   return (
-    <header className="p-6 bg-secondary border-b border-primary shadow-md">
+    <header className="p-6 bg-secondary border-b border-primary">
       <nav className="flex justify-between items-center">
         <div className="flex space-x-6">
           {links.map(({ href, label }) => (

@@ -15,7 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <Header/>
-        <main className="flex-1 mx-auto">
+        <main className="flex-1 bg-gray-100">
           <Toaster/>
           {children}
         </main>

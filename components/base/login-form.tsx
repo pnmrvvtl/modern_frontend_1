@@ -9,13 +9,15 @@ import { AuthError } from '@supabase/auth-js';
 import { toast } from '@/hooks/use-toast';
 
 export default function AuthPage() {
-  const [hasAccount, setHasAccount] = useState<boolean | null>(null); // Tracks user's choice
+  const [hasAccount, setHasAccount] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFormSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
     action: (formData: FormData) => Promise<AuthError | undefined>
   ) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
 
     try {
@@ -29,13 +31,14 @@ export default function AuthPage() {
       }
     } catch (err) {
       console.error('error', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        {/* Ask if the user has an account */}
         {hasAccount === null && (
           <div className="text-center space-y-6">
             <h2 className="text-2xl font-bold text-gray-800">Do you have an account?</h2>
@@ -56,7 +59,6 @@ export default function AuthPage() {
           </div>
         )}
 
-        {/* Combined Form for Sign In and Sign Up */}
         {hasAccount !== null && (
           <div>
             <h2 className="text-center text-2xl font-bold text-gray-800 mb-6">
@@ -90,12 +92,16 @@ export default function AuthPage() {
               </div>
               <Button
                 type="submit"
-                className={`w-full ${
+                disabled={loading}
+                className={`w-full flex justify-center items-center ${
                   hasAccount
                     ? 'bg-blue-500 hover:bg-blue-600'
                     : 'bg-green-500 hover:bg-green-600'
                 } text-white`}
               >
+                {loading ? (
+                  <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+                ) : null}
                 {hasAccount ? 'Log In' : 'Sign Up'}
               </Button>
               <p
