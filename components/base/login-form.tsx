@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { login, signup } from '@/actions/login';
-import { AuthError } from '@supabase/auth-js';
 import { toast } from '@/hooks/use-toast';
 
 export default function AuthPage() {
@@ -14,27 +13,40 @@ export default function AuthPage() {
 
   const handleFormSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    action: (formData: FormData) => Promise<AuthError | undefined>
+    action: (formData: FormData) => Promise<string | undefined>
   ) => {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
 
     try {
-      const error = await action(formData);
-      if (error) {
+      const response = await action(formData);
+
+      if (response) {
         toast({
           title:       'Error',
-          description: error.message || 'Something went wrong!',
+          description: response || 'Something went wrong!',
           variant:     'destructive',
+        });
+      } else {
+        toast({
+          title:       'Success',
+          description: `You have successfully ${hasAccount ? 'logged in' : 'signed up'}.`,
+          variant:     'default',
         });
       }
     } catch (err) {
-      console.error('error', err);
+      console.error('Unexpected error on client:', err);
+      toast({
+        title:       'Unexpected Error',
+        description: 'Something went wrong. Please try again later.',
+        variant:     'destructive',
+      });
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
@@ -45,7 +57,7 @@ export default function AuthPage() {
             <div className="flex justify-center space-x-4">
               <Button
                 onClick={() => setHasAccount(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-green-500 hover:bg-green-600 text-white"
               >
                 Yes, Sign In
               </Button>
@@ -93,11 +105,7 @@ export default function AuthPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex justify-center items-center ${
-                  hasAccount
-                    ? 'bg-blue-500 hover:bg-blue-600'
-                    : 'bg-green-500 hover:bg-green-600'
-                } text-white`}
+                className="w-full flex justify-center items-center bg-green-500 hover:bg-green-600 text-white"
               >
                 {loading ? (
                   <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
