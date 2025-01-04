@@ -2,19 +2,13 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
+import { validateRequest } from '@/lib/validate-request';
 
 export default async function getTodo(id: number) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    throw new Error("User must be authenticated to get todo.");
-  }
+  const { user } = await validateRequest(true, id);
 
   try {
     const { data, error } = await supabase

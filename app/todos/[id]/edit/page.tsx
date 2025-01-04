@@ -1,4 +1,4 @@
-import { SearchParams } from '@/types/searchParams';
+import { SearchParams } from '@/types/search-params';
 import { TodoForm } from '@/components/base/todo-form';
 import getTodo from '@/actions/get-todo';
 import { notFound } from 'next/navigation';

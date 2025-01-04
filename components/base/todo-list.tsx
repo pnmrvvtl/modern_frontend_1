@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Todo } from '@/types/todo';
 import { useRouter } from 'next/navigation';
 import deleteTodo from '@/actions/delete-todo';
+import updateTodo from '@/actions/update-todo';
 import { toast } from '@/hooks/use-toast';
 
 interface TodoListProps {
@@ -18,8 +19,11 @@ interface TodoListProps {
 export function TodoList({ todos }: TodoListProps) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [optimisticTodos, setOptimisticTodos] = useState<Todo[]>(todos);
 
   const handleDelete = async (id: number) => {
+    const updatedTodos = optimisticTodos.filter((todo) => todo.id !== id);
+    setOptimisticTodos(updatedTodos);
     setLoadingId(id);
 
     const formData = new FormData();
@@ -40,10 +44,57 @@ export function TodoList({ todos }: TodoListProps) {
         description: 'Failed to delete the todo. Please try again.',
         variant:     'destructive',
       });
+
+      setOptimisticTodos(todos);
     } finally {
       setLoadingId(null);
     }
   };
+
+  const handleCheckboxChange = async (todo: Todo) => {
+    const updatedCompleted = !todo.completed;
+    const updatedTodos = optimisticTodos.map((t) =>
+      t.id === todo.id ? { ...t, completed: updatedCompleted } : t);
+
+    setOptimisticTodos(updatedTodos);
+    setLoadingId(+todo.id);
+
+    const formData = new FormData();
+    formData.append('id', todo.id.toString());
+    formData.append('title', todo.title);
+    formData.append('description', todo.description || '');
+    formData.append('priority', todo.priority.toString());
+    formData.append(
+      'due_date',
+      todo.due_date ? new Date(todo.due_date).toISOString() : ''
+    );
+    formData.append('completed', updatedCompleted ? 'on' : '');
+
+    try {
+      await updateTodo(formData);
+      toast({
+        title:       'Updated',
+        description: `Todo "${todo.title}" marked as ${
+          updatedCompleted ? 'completed' : 'not completed'
+        }!`,
+        variant: 'default',
+      });
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast({
+        title:       'Error',
+        description: `Failed to update the todo "${todo.title}". Please try again.`,
+        variant:     'destructive',
+      });
+
+      setOptimisticTodos(todos);
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const displayedTodos = optimisticTodos;
 
   if (todos.length === 0) {
     return (
@@ -61,12 +112,22 @@ export function TodoList({ todos }: TodoListProps) {
 
   return (
     <div className="space-y-4 mb-4">
-      {todos.map((todo) => (
+      {displayedTodos.map((todo) => (
         <Accordion type="single" collapsible key={todo.id} className="border rounded-md">
           <AccordionItem value={todo.id.toString()}>
             <div className="flex justify-between items-center p-4">
               <div className="flex items-center space-x-4">
-                <Checkbox id={`completed-${todo.id}`} checked={todo.completed} className="cursor-auto" title="Click on edit button, if you want to edit 'completed' field"/>
+                {loadingId === todo.id ? (
+                  <span className="animate-spin w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full" />
+                ) : (
+                  <Checkbox
+                    id={`completed-${todo.id}`}
+                    checked={todo.completed}
+                    onClick={() => handleCheckboxChange(todo)}
+                    disabled={loadingId === todo.id}
+                    title="Toggle 'completed' status"
+                  />
+                )}
                 <div>
                   <div className="font-medium text-lg">{todo.title}</div>
                   <div className="text-sm text-gray-500">
@@ -91,7 +152,7 @@ export function TodoList({ todos }: TodoListProps) {
                   disabled={loadingId === todo.id}
                 >
                   {loadingId === todo.id ? (
-                    <span className="animate-spin w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full"></span>
+                    <span className="animate-spin w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full" />
                   ) : (
                     <Trash className="w-5 h-5 text-red-500" />
                   )}

@@ -3,25 +3,13 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { validateRequest } from '@/lib/validate-request';
 
 export default async function deleteTodo(formData: FormData) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    throw new Error("User must be authenticated to delete todo.");
-  }
-
-  const id = formData.get("id")?.toString();
-
-  if (!id) {
-    throw new Error("Todo ID is required for deletion.");
-  }
+  const { user, id } = await validateRequest(true, parseInt(formData.get("id") as string));
 
   try {
     const { error } = await supabase

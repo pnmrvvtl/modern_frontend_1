@@ -4,25 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { Priority } from '@/types/todo';
+import { validateRequest } from '@/lib/validate-request';
 
 export default async function updateTodo(formData: FormData) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const id = formData.get("id")?.toString();
-
-  if (!id) {
-    throw new Error("Todo ID is required for updating.");
-  }
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    throw new Error("User must be authenticated to update todos.");
-  }
+  const { user, id } = await validateRequest(true, parseInt(formData.get("id") as string));
 
   const todoData = {
     title: formData.get("title")?.toString() || "",

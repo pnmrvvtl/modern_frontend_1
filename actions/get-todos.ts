@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { Priority, Todo } from '@/types/todo';
+import { validateRequest } from '@/lib/validate-request';
 
 interface GetTodosParams {
   title?: string;
@@ -16,14 +17,7 @@ export async function getTodos(params: GetTodosParams & { sort?: string }): Prom
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    throw new Error("User must be authenticated to fetch todos.");
-  }
+  const { user } = await validateRequest(false);
 
   let query = supabase.from("todos").select("*").eq("user_id", user.id);
 
@@ -36,6 +30,8 @@ export async function getTodos(params: GetTodosParams & { sort?: string }): Prom
   if (params.sort) {
     const [sortField, sortOrder] = params.sort.split(":");
     query = query.order(sortField, { ascending: sortOrder === "asc" });
+  } else {
+    query = query.order("id", { ascending: false });
   }
 
   const { data, error } = await query;

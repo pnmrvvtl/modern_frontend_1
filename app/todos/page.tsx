@@ -1,7 +1,7 @@
 import { TodoList } from '@/components/base/todo-list';
 import { getTodos } from '@/actions/get-todos';
 import { TodoFilters } from '@/components/base/todo-filters';
-import { SearchParams } from '@/types/searchParams';
+import { SearchParams } from '@/types/search-params';
 
 interface Props {
   params: Promise<{id: string}>;
